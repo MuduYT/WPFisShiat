@@ -1,0 +1,31 @@
+﻿<Application x:Class="BibWpf.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BibWpf"
+             xmlns:vm="clr-namespace:BibWpf.ViewModels"
+             xmlns:v="clr-namespace:BibWpf.Views">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <!-- ============================================================
+                 DataTemplates: map ViewModel-Typ → passende UserControl-View
+                 ============================================================ -->
+            <DataTemplate DataType="{x:Type vm:BuecherViewModel}">
+                <v:BuecherView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:AutorenViewModel}">
+                <v:AutorenView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:VerlageViewModel}">
+                <v:VerlageView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:OrteViewModel}">
+                <v:OrteView />
+            </DataTemplate>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,52 @@
+<UserControl x:Class="BibWpf.Views.BuecherView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="{Binding Title}"
+                   Foreground="White" FontSize="24" FontWeight="SemiBold"
+                   Margin="0,0,0,12"/>
+
+        <!-- Tabelle -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Buecher}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  AlternatingRowBackground="#252526"
+                  RowBackground="#1E1E1E"
+                  Foreground="White"
+                  BorderBrush="#3F3F46"
+                  Background="#1E1E1E">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"        Binding="{Binding Id}"               Width="60"/>
+                <DataGridTextColumn Header="Titel"     Binding="{Binding Titel}"            Width="*"/>
+                <DataGridTextColumn Header="Autor"     Binding="{Binding Autor.VollstaendigerName}" Width="180"/>
+                <DataGridTextColumn Header="Verlag"    Binding="{Binding Verlag.Name}"      Width="160"/>
+                <DataGridTextColumn Header="Ort"       Binding="{Binding Ort.Name}"         Width="140"/>
+                <DataGridTextColumn Header="Jahr"      Binding="{Binding Erscheinungsjahr}" Width="80"/>
+                <DataGridTextColumn Header="ISBN"      Binding="{Binding Isbn}"             Width="140"/>
+                <DataGridTextColumn Header="Seiten"    Binding="{Binding Seiten}"           Width="70"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Status-/Fehlerzeile -->
+        <TextBlock Grid.Row="2"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="#F48771"
+                   FontSize="12" Margin="0,8,0,0"/>
+    </Grid>
+</UserControl>

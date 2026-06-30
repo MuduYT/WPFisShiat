@@ -1,0 +1,32 @@
+# Docker Compose für die Bibliotheks-WPF-App (Schritt 1)
+# Start:  docker compose up -d
+# Stop:   docker compose down            (Daten bleiben im Volume erhalten)
+# Reset:  docker compose down -v         (Volume löschen = komplett leerer Start)
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bibwpf-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bibliothek
+      POSTGRES_USER: bibuser
+      POSTGRES_PASSWORD: bibpass
+      # Deterministische Collation, damit Tests/S种子-Daten stabil sortieren
+      TZ: Europe/Berlin
+      PGTZ: Europe/Berlin
+    ports:
+      # Host:Container — App verbindet sich auf localhost:5433
+      - "5433:5432"
+    volumes:
+      # Persistente Datenhaltung zwischen Container-Neustarts
+      - bibwpf_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Wird von Compose ausgewertet; die App startet sicher erst, wenn Postgres "healthy" ist
+      test: ["CMD-SHELL", "pg_isready -U bibuser -d bibliothek"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bibwpf_pgdata:
+    name: bibwpf_pgdata

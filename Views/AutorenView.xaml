@@ -1,0 +1,48 @@
+<UserControl x:Class="BibWpf.Views.AutorenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="{Binding Title}"
+                   Foreground="White" FontSize="24" FontWeight="SemiBold"
+                   Margin="0,0,0,12"/>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Autoren}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  AlternatingRowBackground="#252526"
+                  RowBackground="#1E1E1E"
+                  Foreground="White"
+                  BorderBrush="#3F3F46"
+                  Background="#1E1E1E">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"        Binding="{Binding Id}"            Width="60"/>
+                <DataGridTextColumn Header="Vorname"   Binding="{Binding Vorname}"      Width="160"/>
+                <DataGridTextColumn Header="Nachname"  Binding="{Binding Nachname}"     Width="160"/>
+                <DataGridTextColumn Header="Name"      Binding="{Binding VollstaendigerName}" Width="*"/>
+                <DataGridTextColumn Header="Geb. Jahr" Binding="{Binding Geburtsjahr}"  Width="90"/>
+                <DataGridTextColumn Header="Wohnort"   Binding="{Binding Ort.Name}"     Width="160"/>
+                <DataGridTextColumn Header="# Bücher"  Binding="{Binding Buecher.Count}" Width="90"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="#F48771"
+                   FontSize="12" Margin="0,8,0,0"/>
+    </Grid>
+</UserControl>
