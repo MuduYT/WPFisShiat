@@ -78,7 +78,6 @@ public class LibraryDbContext : DbContext
             b.Property(x => x.Isbn).HasMaxLength(20);
             b.Property(x => x.Erscheinungsjahr).IsRequired();
             b.Property(x => x.Seiten);
-            b.Property(x => x.Beschreibung).HasMaxLength(2000);
 
             // Buch -> Autor (Pflicht)
             b.HasOne(x => x.Autor)
@@ -91,12 +90,6 @@ public class LibraryDbContext : DbContext
              .WithMany(v => v.Buecher)
              .HasForeignKey(x => x.VerlagId)
              .OnDelete(DeleteBehavior.Restrict);
-
-            // Buch -> Ort (optional)
-            b.HasOne(x => x.Ort)
-             .WithMany(o => o.Buecher)
-             .HasForeignKey(x => x.OrtId)
-             .OnDelete(DeleteBehavior.SetNull);
 
             b.HasIndex(x => x.Titel);
         });
@@ -178,6 +171,28 @@ public class LibraryDbContext : DbContext
     /// Erzeugt die Testdaten (3 je Kategorie) als verknüpften Objekt-Graph.
     /// Navigationen werden gesetzt, damit der ChangeTracker die Fremdschlüssel ableitet.
     /// </summary>
+    /// <summary>
+    /// Prüft, ob die Datenbank komplett leer ist.
+    /// </summary>
+    public bool IsDatabaseEmpty()
+    {
+        return !Orte.Any()
+            && !Verlage.Any()
+            && !Autoren.Any()
+            && !Buecher.Any();
+    }
+
+    /// <summary>
+    /// Prüft asynchron, ob die Datenbank komplett leer ist.
+    /// </summary>
+    public async Task<bool> IsDatabaseEmptyAsync(CancellationToken ct = default)
+    {
+        return !await Orte.AnyAsync(ct)
+            && !await Verlage.AnyAsync(ct)
+            && !await Autoren.AnyAsync(ct)
+            && !await Buecher.AnyAsync(ct);
+    }
+
     private static void BuildSeedData(
         out List<Ort> orte,
         out List<Verlag> verlage,
@@ -185,58 +200,52 @@ public class LibraryDbContext : DbContext
         out List<Buch> buecher)
     {
         // --- Orte ---
-        var muenchen = new Ort { Name = "München", Land = "Deutschland" };
-        var stuttgart = new Ort { Name = "Stuttgart", Land = "Deutschland" };
-        var zuerich = new Ort { Name = "Zürich", Land = "Schweiz" };
-        orte = new List<Ort> { muenchen, stuttgart, zuerich };
-
-        // --- Verlage ---
-        var diogenes = new Verlag { Name = "Diogenes Verlag", Gruendungsjahr = 1952, Ort = zuerich };
-        var klettCotta = new Verlag { Name = "Klett-Cotta", Gruendungsjahr = 1959, Ort = stuttgart };
-        var suhrkamp = new Verlag { Name = "Suhrkamp Verlag", Gruendungsjahr = 1950, Ort = null };
-        verlage = new List<Verlag> { diogenes, klettCotta, suhrkamp };
+        var graz = new Ort { Name = "Graz", Land = "Österreich" };
+        var klagenfurt = new Ort { Name = "Klagenfurt", Land = "Österreich" };
+        var villach = new Ort { Name = "Villach", Land = "Österreich" };
+        orte = new List<Ort> { graz, klagenfurt, villach };
 
         // --- Autoren ---
-        var sueskind = new Autor { Vorname = "Patrick", Nachname = "Süskind", Geburtsjahr = 1949, Ort = muenchen };
-        var hesse = new Autor { Vorname = "Hermann", Nachname = "Hesse", Geburtsjahr = 1877, Ort = stuttgart };
-        var frisch = new Autor { Vorname = "Max", Nachname = "Frisch", Geburtsjahr = 1911, Ort = zuerich };
-        autoren = new List<Autor> { sueskind, hesse, frisch };
+        var pinzer = new Autor { Vorname = "Nico", Nachname = "Pinzer", Geburtsjahr = 1998, Ort = graz };
+        var pucher = new Autor { Vorname = "Fabian", Nachname = "Pucher", Geburtsjahr = 1995, Ort = klagenfurt };
+        var hraschan = new Autor { Vorname = "Roland", Nachname = "Hraschan", Geburtsjahr = 1992, Ort = villach };
+        autoren = new List<Autor> { pinzer, pucher, hraschan };
+
+        // --- Verlage ---
+        var hilfMir = new Verlag { Name = "Hilf Mir! Jung, Pleite, Verzweifelt", Gruendungsjahr = 2020, Ort = graz };
+        var gutePucher = new Verlag { Name = "Gute Pucher", Gruendungsjahr = 2018, Ort = klagenfurt };
+        var schlechtePucher = new Verlag { Name = "Schlechte Pucher", Gruendungsjahr = 2019, Ort = villach };
+        verlage = new List<Verlag> { hilfMir, gutePucher, schlechtePucher };
 
         // --- Bücher ---
         buecher = new List<Buch>
         {
             new Buch
             {
-                Titel = "Das Parfum",
-                Isbn = "978-3-257-22800-1",
-                Erscheinungsjahr = 1985,
-                Seiten = 320,
-                Beschreibung = "Die Geschichte des Jean-Baptiste Grenouille im 18. Jahrhundert.",
-                Autor = sueskind,
-                Verlag = diogenes,
-                Ort = zuerich
+                Titel = "Wie TikTok mein leben einnahm",
+                Isbn = "978-3-123-45678-9",
+                Erscheinungsjahr = 2023,
+                Seiten = 180,
+                Autor = pinzer,
+                Verlag = hilfMir
             },
             new Buch
             {
-                Titel = "Narziss und Goldmund",
-                Isbn = "978-3-608-93501-6",
-                Erscheinungsjahr = 1930,
-                Seiten = 416,
-                Beschreibung = "Zwei Lebensentwürfe zwischen Geist und Sinnlichkeit.",
-                Autor = hesse,
-                Verlag = klettCotta,
-                Ort = stuttgart
+                Titel = "DnB Leichtgemacht",
+                Isbn = "978-3-987-65432-1",
+                Erscheinungsjahr = 2021,
+                Seiten = 120,
+                Autor = pucher,
+                Verlag = gutePucher
             },
             new Buch
             {
-                Titel = "Homo Faber",
-                Isbn = "978-3-518-37120-1",
-                Erscheinungsjahr = 1957,
-                Seiten = 224,
-                Beschreibung = "Ein Ingenieur wird durch Zufälle mit seinem Schicksal konfrontiert.",
-                Autor = frisch,
-                Verlag = suhrkamp,
-                Ort = zuerich
+                Titel = "in 1000 Tagen zum Sigma Male",
+                Isbn = "978-3-555-66677-7",
+                Erscheinungsjahr = 2024,
+                Seiten = 300,
+                Autor = hraschan,
+                Verlag = schlechtePucher
             }
         };
     }

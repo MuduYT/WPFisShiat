@@ -64,19 +64,12 @@ namespace BibWpf.Migrations
                     b.Property<int>("AutorId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Beschreibung")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
                     b.Property<int>("Erscheinungsjahr")
                         .HasColumnType("integer");
 
                     b.Property<string>("Isbn")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
-
-                    b.Property<int?>("OrtId")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("Seiten")
                         .HasColumnType("integer");
@@ -92,8 +85,6 @@ namespace BibWpf.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AutorId");
-
-                    b.HasIndex("OrtId");
 
                     b.HasIndex("Titel");
 
@@ -174,11 +165,6 @@ namespace BibWpf.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BibWpf.Models.Ort", "Ort")
-                        .WithMany("Buecher")
-                        .HasForeignKey("OrtId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("BibWpf.Models.Verlag", "Verlag")
                         .WithMany("Buecher")
                         .HasForeignKey("VerlagId")
@@ -186,8 +172,6 @@ namespace BibWpf.Migrations
                         .IsRequired();
 
                     b.Navigation("Autor");
-
-                    b.Navigation("Ort");
 
                     b.Navigation("Verlag");
                 });
@@ -210,8 +194,6 @@ namespace BibWpf.Migrations
             modelBuilder.Entity("BibWpf.Models.Ort", b =>
                 {
                     b.Navigation("Autoren");
-
-                    b.Navigation("Buecher");
 
                     b.Navigation("Verlage");
                 });

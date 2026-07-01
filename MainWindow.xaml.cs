@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using BibWpf.ViewModels;
 
 namespace BibWpf;
@@ -9,8 +9,9 @@ namespace BibWpf;
 /// </summary>
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    public MainWindow(MainViewModel mainViewModel)
     {
         InitializeComponent();
+        DataContext = mainViewModel;
     }
 }

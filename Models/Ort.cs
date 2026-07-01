@@ -21,7 +21,6 @@ public class Ort
     // ---- Navigationen ----
     public List<Verlag> Verlage { get; set; } = new();
     public List<Autor> Autoren { get; set; } = new();
-    public List<Buch> Buecher { get; set; } = new();
 
     public override string ToString() => string.IsNullOrWhiteSpace(Land)
         ? Name

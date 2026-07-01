@@ -27,10 +27,6 @@ public class Buch
     [Range(1, 100_000, ErrorMessage = "Seitenanzahl muss zwischen 1 und 100 000 liegen.")]
     public int? Seiten { get; set; }
 
-    /// <summary>Freie Beschreibung/Inhaltsangabe.</summary>
-    [StringLength(4000, ErrorMessage = "Beschreibung darf max. 4000 Zeichen lang sein.")]
-    public string? Beschreibung { get; set; }
-
     // ---- Fremdschlüssel (Beziehungen) ----
     /// <summary>Verfasser:in — Pflichtbeziehung.</summary>
     [Required(ErrorMessage = "Autor ist erforderlich.")]
@@ -43,10 +39,6 @@ public class Buch
     [Range(1, int.MaxValue, ErrorMessage = "Verlag ist erforderlich.")]
     public int VerlagId { get; set; }
     public Verlag? Verlag { get; set; }
-
-    /// <summary>Erscheinungsort — optional.</summary>
-    public int? OrtId { get; set; }
-    public Ort? Ort { get; set; }
 
     public override string ToString()
         => $"{Titel} ({Erscheinungsjahr})";

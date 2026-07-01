@@ -15,7 +15,6 @@ public partial class BuecherEditDialogViewModel : BaseEditDialogViewModel<Buch>
 
     public ObservableCollection<Autor> AutorenListe { get; }
     public ObservableCollection<Verlag> VerlageListe { get; }
-    public ObservableCollection<Ort> OrteListe { get; }
 
     public BuecherEditDialogViewModel(LibraryDbContext db, Buch? existing)
         : base(db, existing)
@@ -24,7 +23,5 @@ public partial class BuecherEditDialogViewModel : BaseEditDialogViewModel<Buch>
             db.Autoren.AsNoTracking().OrderBy(a => a.Nachname).ThenBy(a => a.Vorname).ToList());
         VerlageListe = new ObservableCollection<Verlag>(
             db.Verlage.AsNoTracking().OrderBy(v => v.Name).ToList());
-        OrteListe = new ObservableCollection<Ort>(
-            db.Orte.AsNoTracking().OrderBy(o => o.Name).ToList());
     }
 }

@@ -17,8 +17,7 @@ namespace BibWpf.Dialogs;
 /// </remarks>
 public abstract class EditDialogBase : Window
 {
-    /// <summary>Wird vom konkreten Konstruktor (Code-Behind des Sub-Dialogs) aufgerufen.</summary>
-    protected void Initialize(dynamic vm)
+    protected void Initialize(IBaseEditDialogViewModel vm)
     {
         DataContext = vm;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -31,7 +30,7 @@ public abstract class EditDialogBase : Window
         {
             // Validierung initial anstoßen, damit HasErrors korrekt ist.
             vm.ValidateAll();
-            // RequestClose-Event abonnieren (dynamisch, um generisches T zu umgehen).
+            // RequestClose-Event abonnieren.
             vm.RequestClose -= OnRequestClose;
             vm.RequestClose += OnRequestClose;
         };

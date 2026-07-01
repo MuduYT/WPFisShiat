@@ -4,44 +4,70 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="700">
+             d:DesignHeight="600" d:DesignWidth="860">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Binding Title}"
-                   Foreground="White" FontSize="24" FontWeight="SemiBold"
-                   Margin="0,0,0,12"/>
+        <!-- ── Seitenheader ── -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <DataGrid Grid.Row="1"
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}"
+                           Foreground="{StaticResource Brush.Text.Primary}"
+                           FontSize="22" FontWeight="Bold"/>
+                <TextBlock Text="Alle Orte verwalten"
+                           Foreground="{StaticResource Brush.Text.Muted}"
+                           FontSize="12" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="＋  Neu"
+                        Command="{Binding AddCommand}"
+                        Style="{StaticResource Btn.Primary}"
+                        Margin="0,0,8,0" MinWidth="88"/>
+                <Button Content="✎  Bearbeiten"
+                        Command="{Binding EditCommand}"
+                        Style="{StaticResource Btn.Secondary}"
+                        Margin="0,0,8,0" MinWidth="110"/>
+                <Button Content="✕  Löschen"
+                        Command="{Binding DeleteCommand}"
+                        Style="{StaticResource Btn.Danger}"
+                        MinWidth="88"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ── Tabelle ── -->
+        <DataGrid Grid.Row="2"
+                  Style="{StaticResource AppDataGrid}"
                   ItemsSource="{Binding Orte}"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal"
-                  AlternatingRowBackground="#252526"
-                  RowBackground="#1E1E1E"
-                  Foreground="White"
-                  BorderBrush="#3F3F46"
-                  Background="#1E1E1E">
+                  SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID"         Binding="{Binding Id}"              Width="60"/>
-                <DataGridTextColumn Header="Name"       Binding="{Binding Name}"            Width="*"/>
-                <DataGridTextColumn Header="Land"       Binding="{Binding Land}"            Width="160"/>
-                <DataGridTextColumn Header="# Verlage"  Binding="{Binding Verlage.Count}"   Width="100"/>
-                <DataGridTextColumn Header="# Autoren"  Binding="{Binding Autoren.Count}"   Width="100"/>
-                <DataGridTextColumn Header="# Bücher"   Binding="{Binding Buecher.Count}"   Width="100"/>
+                <DataGridTextColumn Header="#"          Binding="{Binding Id}"              Width="0.5*" MinWidth="45"/>
+                <DataGridTextColumn Header="Name"       Binding="{Binding Name}"            Width="3*" MinWidth="150"/>
+                <DataGridTextColumn Header="Land"       Binding="{Binding Land}"            Width="2*" MinWidth="100"/>
+                <DataGridTextColumn Header="# Verlage"  Binding="{Binding Verlage.Count}"   Width="1.5*" MinWidth="80"/>
+                <DataGridTextColumn Header="# Autoren"  Binding="{Binding Autoren.Count}"   Width="1.5*" MinWidth="80"/>
             </DataGrid.Columns>
         </DataGrid>
 
-        <TextBlock Grid.Row="2"
-                   Text="{Binding ErrorMessage}"
-                   Foreground="#F48771"
-                   FontSize="12" Margin="0,8,0,0"/>
+        <!-- ── Fehlermeldung ── -->
+        <Border Grid.Row="3"
+                Background="#1C0A0A"
+                BorderBrush="#7F1D1D" BorderThickness="0,1,0,0"
+                Padding="12,8"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibility}}">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="#FCA5A5" FontSize="12"/>
+        </Border>
     </Grid>
 </UserControl>

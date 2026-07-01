@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-c:\Users\itlabvi\Desktop\Bib WPF\src\BibWpf\obj\Debug\net8.0-windows\
+C:\Users\viuser\Desktop\Github\WPFisShiat\obj\Debug\net8.0-windows\
 BibWpf
 none
 false
-TRACE;DEBUG;NET;NET8_0;NETCOREAPP
-c:\Users\itlabvi\Desktop\Bib WPF\src\BibWpf\App.xaml
-52080970196
+TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
+C:\Users\viuser\Desktop\Github\WPFisShiat\App.xaml
+111450822545
 
-23732963605
-233-1824227409
-MainWindow.xaml;Views\AutorenView.xaml;Views\BuecherView.xaml;Views\OrteView.xaml;Views\VerlageView.xaml;
+42156970265
+233-1577707507
+Dialogs\AutorenEditDialog.xaml;Dialogs\BuecherEditDialog.xaml;Dialogs\ConfirmDeleteWindow.xaml;Dialogs\OrteEditDialog.xaml;Dialogs\VerlageEditDialog.xaml;MainWindow.xaml;Views\AutorenView.xaml;Views\BuecherView.xaml;Views\OrteView.xaml;Views\SettingsView.xaml;Views\VerlageView.xaml;
 
 False
 

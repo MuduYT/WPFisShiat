@@ -15,6 +15,7 @@ public partial class MainViewModel : BaseViewModel
     private readonly AutorenViewModel _autorenVm;
     private readonly VerlageViewModel _verlageVm;
     private readonly OrteViewModel _orteVm;
+    private readonly SettingsViewModel _settingsVm;
 
     /// <summary>
     /// Aktuell im <c>ContentControl</c> angezeigte Sub-View (vom Typ <see cref="BaseViewModel"/>).
@@ -27,28 +28,53 @@ public partial class MainViewModel : BaseViewModel
         BuecherViewModel buecherVm,
         AutorenViewModel autorenVm,
         VerlageViewModel verlageVm,
-        OrteViewModel orteVm)
+        OrteViewModel orteVm,
+        SettingsViewModel settingsVm)
     {
         _buecherVm = buecherVm;
         _autorenVm = autorenVm;
         _verlageVm = verlageVm;
         _orteVm = orteVm;
+        _settingsVm = settingsVm;
 
         Title = "Bibliothek";
 
-        // Standardansicht beim Start
+        // Standardansicht beim Start — lädt Bücher sofort
         CurrentView = _buecherVm;
+        _ = _buecherVm.ReloadAsync();
     }
 
     [RelayCommand]
-    private void ShowBuecher() => CurrentView = _buecherVm;
+    private async Task ShowBuecher()
+    {
+        CurrentView = _buecherVm;
+        await _buecherVm.ReloadAsync();
+    }
 
     [RelayCommand]
-    private void ShowAutoren() => CurrentView = _autorenVm;
+    private async Task ShowAutoren()
+    {
+        CurrentView = _autorenVm;
+        await _autorenVm.ReloadAsync();
+    }
 
     [RelayCommand]
-    private void ShowVerlage() => CurrentView = _verlageVm;
+    private async Task ShowVerlage()
+    {
+        CurrentView = _verlageVm;
+        await _verlageVm.ReloadAsync();
+    }
 
     [RelayCommand]
-    private void ShowOrte() => CurrentView = _orteVm;
+    private async Task ShowOrte()
+    {
+        CurrentView = _orteVm;
+        await _orteVm.ReloadAsync();
+    }
+
+    [RelayCommand]
+    private void ShowSettings()
+    {
+        CurrentView = _settingsVm;
+    }
 }

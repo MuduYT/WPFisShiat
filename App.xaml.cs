@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using BibWpf.Data;
 using BibWpf.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +18,24 @@ namespace BibWpf;
 public partial class App : Application
 {
     private IHost? _host;
+    private IServiceScope? _appScope;
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Globale Fehlerbehandlung registrieren
+        AppDomain.CurrentDomain.UnhandledException += (s, ev) =>
+        {
+            var exception = ev.ExceptionObject as Exception;
+            MessageBox.Show($"Unbehandelter Systemfehler:\n\n{exception?.ToString()}", "Schwerwiegender Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+        };
+
+        DispatcherUnhandledException += (s, ev) =>
+        {
+            MessageBox.Show($"Unbehandelter UI-Fehler:\n\n{ev.Exception?.ToString()}", "UI-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            ev.Handled = true;
+        };
 
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration(cfg =>
@@ -37,18 +51,28 @@ public partial class App : Application
                 services.AddDbContext<LibraryDbContext>(opt =>
                     opt.UseNpgsql(connectionString));
 
+                // ---- Services ----
+                services.AddSingleton<BibWpf.ViewModels.Dialogs.IDialogService, BibWpf.Services.WpfDialogService>();
+
                 // ---- ViewModels ----
                 // Sub-ViewModels: scoped, damit sie den (scoped) DbContext teilen.
                 services.AddScoped<BuecherViewModel>();
                 services.AddScoped<AutorenViewModel>();
                 services.AddScoped<VerlageViewModel>();
                 services.AddScoped<OrteViewModel>();
+                services.AddScoped<SettingsViewModel>();
+
+                // Edit-Dialog ViewModels (erzeugt via ActivatorUtilities im Service, optional auch hier registriert)
+                services.AddTransient<BibWpf.ViewModels.Dialogs.BuecherEditDialogViewModel>();
+                services.AddTransient<BibWpf.ViewModels.Dialogs.AutorenEditDialogViewModel>();
+                services.AddTransient<BibWpf.ViewModels.Dialogs.VerlageEditDialogViewModel>();
+                services.AddTransient<BibWpf.ViewModels.Dialogs.OrteEditDialogViewModel>();
 
                 // MainViewModel: scoped (hält die injizierten Sub-VMs über die Session).
                 services.AddScoped<MainViewModel>();
 
-                // MainWindow: transient, bekommt MainViewModel per Konstruktor.
-                services.AddTransient<MainWindow>();
+                // MainWindow: scoped, damit es denselben Scope wie MainViewModel verwendet.
+                services.AddScoped<MainWindow>();
             })
             .ConfigureLogging(logging =>
             {
@@ -62,8 +86,20 @@ public partial class App : Application
         {
             using var scope = _host.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
-            await db.Database.MigrateAsync();
-            await db.EnsureSeededAsync();
+            db.Database.Migrate();
+            if (db.IsDatabaseEmpty())
+            {
+                var promptResult = MessageBox.Show(
+                    "Die Datenbank ist leer. Sollen die Testdaten automatisch erstellt werden?",
+                    "Datenbank leer",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (promptResult == MessageBoxResult.Yes)
+                {
+                    db.EnsureSeeded();
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -76,17 +112,19 @@ public partial class App : Application
             return;
         }
 
-        // ---- MainWindow aus dem DI-Container holen ----
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        // ---- MainWindow in einem eigenen Scope auflösen (Scoped-VMs teilen diesen Scope) ----
+        _appScope = _host.Services.CreateScope();
+        var mainWindow = _appScope.ServiceProvider.GetRequiredService<MainWindow>();
         MainWindow = mainWindow;
         mainWindow.Show();
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    protected override void OnExit(ExitEventArgs e)
     {
+        _appScope?.Dispose();
         if (_host is not null)
         {
-            await _host.StopAsync();
+            _host.StopAsync().GetAwaiter().GetResult();
             _host.Dispose();
         }
         base.OnExit(e);

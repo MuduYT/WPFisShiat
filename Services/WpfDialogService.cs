@@ -17,7 +17,7 @@ public sealed class WpfDialogService : IDialogService
 
     public WpfDialogService(IServiceProvider sp) => _sp = sp;
 
-    public EditDialogResult ShowEditBuch(Buch? entity)      => ShowEditWindow<BuchEditDialog, Buch, BuecherEditDialogViewModel>(entity);
+    public EditDialogResult ShowEditBuch(Buch? entity)      => ShowEditWindow<BuecherEditDialog, Buch, BuecherEditDialogViewModel>(entity);
     public EditDialogResult ShowEditAutor(Autor? entity)    => ShowEditWindow<AutorenEditDialog, Autor, AutorenEditDialogViewModel>(entity);
     public EditDialogResult ShowEditVerlag(Verlag? entity)  => ShowEditWindow<VerlageEditDialog, Verlag, VerlageEditDialogViewModel>(entity);
     public EditDialogResult ShowEditOrt(Ort? entity)        => ShowEditWindow<OrteEditDialog, Ort, OrteEditDialogViewModel>(entity);
@@ -33,13 +33,9 @@ public sealed class WpfDialogService : IDialogService
         where TVM : BaseEditDialogViewModel<TEntity>
     {
         using var scope = _sp.CreateScope();
-        var vm = scope.ServiceProvider.GetRequiredService<TVM>();
-        var window = (TWindow)Activator.CreateInstance(typeof(TWindow), scope.ServiceProvider, vm)!;
+        var vm = ActivatorUtilities.CreateInstance<TVM>(scope.ServiceProvider, entity ?? new TEntity());
+        var window = (TWindow)Activator.CreateInstance(typeof(TWindow), vm)!;
         window.Owner = System.Windows.Application.Current.MainWindow;
-        // VM hat den Entity-Setter bereits im Konstruktor gerufen (über das DB-Loading),
-        // aber wir übergeben zusätzlich das entity hier nicht erneut — der VM liest aus DI
-        // und wird im Add-Fall (entity == null) eine neue Instanz erzeugen.
-        _ = entity; // unterdrückt UnusedWarning
         var result = window.ShowDialog();
         return result == true ? EditDialogResult.Saved : EditDialogResult.Cancel;
     }

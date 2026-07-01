@@ -1,0 +1,110 @@
+<UserControl x:Class="BibWpf.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="860">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- Page Header -->
+            <RowDefinition Height="24"/>     <!-- Spacer -->
+            <RowDefinition Height="*"/>      <!-- Settings Cards -->
+            <RowDefinition Height="Auto"/>   <!-- Status Banner -->
+        </Grid.RowDefinitions>
+
+        <!-- ── Page Header ── -->
+        <Grid Grid.Row="0">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}"
+                           Foreground="{StaticResource Brush.Text.Primary}"
+                           FontSize="22" FontWeight="Bold"/>
+                <TextBlock Text="Globale Einstellungen und Datenbankverwaltung"
+                           Foreground="{StaticResource Brush.Text.Muted}"
+                           FontSize="12" Margin="0,2,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ── Settings Cards ── -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel MaxWidth="640" HorizontalAlignment="Left" Margin="0,4,0,0">
+
+                <!-- Datenbank-Verwaltung Card -->
+                <Border Background="{StaticResource Brush.Bg.Sidebar}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24"
+                        Margin="0,0,0,16">
+                    
+                    <StackPanel>
+                        <TextBlock Text="Datenbank zurücksetzen"
+                                   Foreground="{StaticResource Brush.Text.Primary}"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,0,0,8"/>
+                        
+                        <TextBlock Text="Durch das Zurücksetzen der Datenbank werden alle aktuellen Bücher, Autoren, Verlage und Orte unwiderruflich gelöscht. Sie können anschließend wählen, ob die standardisierten Testdaten automatisch neu generiert werden sollen."
+                                   Foreground="{StaticResource Brush.Text.Muted}"
+                                   FontSize="13" TextWrapping="Wrap"
+                                   LineHeight="18"
+                                   Margin="0,0,0,20"/>
+
+                        <Button Content="⚠  Datenbank zurücksetzen..."
+                                Command="{Binding ResetDatabaseCommand}"
+                                Style="{StaticResource Btn.Danger}"
+                                HorizontalAlignment="Left"
+                                Padding="16,8" MinWidth="220"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Infos & Systemstatus Card -->
+                <Border Background="{StaticResource Brush.Bg.Sidebar}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24">
+                    
+                    <StackPanel>
+                        <TextBlock Text="Systeminformationen"
+                                   Foreground="{StaticResource Brush.Text.Primary}"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,0,0,12"/>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Anwendung:" Foreground="{StaticResource Brush.Text.Muted}" FontSize="13"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="BibManager v1.0.0 (WPF / .NET 8)" Foreground="{StaticResource Brush.Text.Primary}" FontSize="13" FontWeight="Medium"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Datenbank:" Foreground="{StaticResource Brush.Text.Muted}" FontSize="13" Margin="0,8,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="PostgreSQL (Npgsql)" Foreground="{StaticResource Brush.Text.Primary}" FontSize="13" FontWeight="Medium" Margin="0,8,0,0"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Status:" Foreground="{StaticResource Brush.Text.Muted}" FontSize="13" Margin="0,8,0,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Verbunden und betriebsbereit" Foreground="#22C55E" FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ── Status / Error Banner ── -->
+        <Border Grid.Row="3"
+                Background="#1C0A0A"
+                BorderBrush="#7F1D1D" BorderThickness="0,1,0,0"
+                Padding="12,8"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibility}}">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="#FCA5A5" FontSize="12"/>
+        </Border>
+    </Grid>
+</UserControl>

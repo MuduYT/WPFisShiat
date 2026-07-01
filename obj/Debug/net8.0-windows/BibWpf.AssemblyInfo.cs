@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BibWpf")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b49dbbffa7c281d37372ebeafbc78931c1af00eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("BibWpf")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BibWpf")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

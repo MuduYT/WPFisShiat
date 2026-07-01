@@ -1,66 +1,105 @@
-<Window x:Class="BibWpf.Dialogs.AutorenEditDialog"
+<local:EditDialogBase x:Class="BibWpf.Dialogs.AutorenEditDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BibWpf.Dialogs"
         xmlns:vm="clr-namespace:BibWpf.ViewModels.Dialogs"
         Title="{Binding Title}"
-        Background="#1E1E1E" Foreground="White"
+        Background="{StaticResource Brush.Bg}" Foreground="{StaticResource Brush.Text.Primary}"
         d:DataContext="{d:DesignInstance Type=vm:AutorenEditDialogViewModel}"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="480" SizeToContent="Height">
+        Width="760" Height="420" WindowStartupLocation="CenterOwner">
 
-    <Grid Margin="14">
+    <Grid Margin="18">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" DataContext="{Binding Entity}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="130"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <!-- Hauptinhalt: Split-Layout -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340"/>   <!-- Linke Spalte: Formular -->
+                <ColumnDefinition Width="24"/>    <!-- Spacer / Trenner -->
+                <ColumnDefinition Width="*"/>     <!-- Rechte Spalte: Verknüpfte Bücher -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Linke Spalte: Formular -->
+            <StackPanel Grid.Column="0" DataContext="{Binding Entity}" VerticalAlignment="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Vorname*"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Vorname, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="Nachname*"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Nachname, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Geburtsjahr"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Geburtsjahr, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="Wohnort"/>
+                    <ComboBox Grid.Row="3" Grid.Column="1" Margin="0,4"
+                              ItemsSource="{Binding DataContext.OrteListe, RelativeSource={RelativeSource AncestorType=Window}}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Name"
+                              SelectedValue="{Binding OrtId, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- Trenner -->
+            <Border Grid.Column="1" Width="1" Background="{StaticResource Brush.Border}" HorizontalAlignment="Center" Margin="0,4"/>
+
+            <!-- Rechte Spalte: Verknüpfte Bücher -->
+            <Grid Grid.Column="2" Margin="4,0,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Content="Vorname*"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
-                         Text="{Binding Vorname, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+                <TextBlock Grid.Row="0" Text="Geschriebene Bücher"
+                           Foreground="{StaticResource Brush.Text.Primary}"
+                           FontSize="14" FontWeight="SemiBold"/>
 
-                <Label Grid.Row="1" Grid.Column="0" Content="Nachname*"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
-                         Text="{Binding Nachname, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-
-                <Label Grid.Row="2" Grid.Column="0" Content="Geburtsjahr"/>
-                <TextBox Grid.Row="2" Grid.Column="1" Margin="0,4"
-                         Text="{Binding Geburtsjahr, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True, TargetNullValue=''}"/>
-
-                <Label Grid.Row="3" Grid.Column="0" Content="Wohnort"/>
-                <ComboBox Grid.Row="3" Grid.Column="1" Margin="0,4"
-                          ItemsSource="{Binding DataContext.OrteListe, RelativeSource={RelativeSource AncestorType=Window}}"
-                          SelectedValuePath="Id"
-                          DisplayMemberPath="Name"
-                          SelectedValue="{Binding OrtId, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True, TargetNullValue=''}"/>
+                <ListBox Grid.Row="2"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ItemsSource="{Binding Entity.Buecher}"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Titel}" Foreground="{StaticResource Brush.Text.Primary}" FontSize="13" Padding="0,4"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
-        </StackPanel>
+        </Grid>
 
+        <!-- DB-ERROR-BANNER -->
         <Border Grid.Row="1" Background="#5A1D1D" CornerRadius="4" Padding="10,6"
                 Margin="0,12,0,8"
                 Visibility="{Binding HasDbErrors, Converter={StaticResource BoolToVisibility}}">
             <TextBlock Text="{Binding DbErrorMessage}" Foreground="White" TextWrapping="Wrap"/>
         </Border>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+        <!-- BUTTONS -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
             <Button Content="Abbrechen" Command="{Binding CancelCommand}"
-                    MinWidth="90" Margin="0,0,8,0" Padding="8,4"
-                    Background="#2D2D30" Foreground="White" BorderThickness="0"/>
+                    MinWidth="90" Margin="0,0,8,0" Style="{StaticResource Btn.Secondary}"/>
             <Button Content="Speichern" Command="{Binding SaveCommand}" IsDefault="True"
-                    MinWidth="90" Padding="8,4"
-                    Background="#0E639C" Foreground="White" BorderThickness="0"/>
+                    MinWidth="90" Style="{StaticResource Btn.Primary}"/>
         </StackPanel>
     </Grid>
-</Window>
+</local:EditDialogBase>

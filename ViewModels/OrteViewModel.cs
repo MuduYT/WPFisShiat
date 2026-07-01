@@ -1,43 +1,49 @@
 using System.Collections.ObjectModel;
 using BibWpf.Data;
 using BibWpf.Models;
+using BibWpf.ViewModels.Dialogs;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 
 namespace BibWpf.ViewModels;
 
 /// <summary>
-/// Read-Only-ViewModel für die Ortsliste.
-/// Lädt im Konstruktor alle Orte inkl. verknüpfter Verlage, Autor:innen
-/// und Bücher (eager-loaded) aus dem per DI injizierten <see cref="LibraryDbContext"/>.
+/// ViewModel für die Ortsliste (mit CRUD-Funktionalität).
 /// </summary>
 public partial class OrteViewModel : BaseViewModel
 {
     private readonly LibraryDbContext _db;
+    private readonly IDialogService _dialogService;
 
     public ObservableCollection<Ort> Orte { get; } = new();
 
-    public OrteViewModel(LibraryDbContext db)
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
+    private Ort? _selectedItem;
+
+    public bool CanEditOrDelete => SelectedItem is not null;
+
+    public OrteViewModel(LibraryDbContext db, IDialogService dialogService)
     {
         _db = db;
+        _dialogService = dialogService;
         Title = "Orte";
-
-        Load();
     }
 
-    private void Load()
+    public async Task ReloadAsync()
     {
         try
         {
             IsBusy = true;
             ErrorMessage = null;
 
-            var daten = _db.Orte
-                .AsNoTracking()
+            var daten = await _db.Orte
                 .Include(o => o.Verlage)
                 .Include(o => o.Autoren)
-                .Include(o => o.Buecher)
-                .OrderBy(o => o.Name)
-                .ToList();
+                .OrderBy(o => o.Id)
+                .ToListAsync();
 
             Orte.Clear();
             foreach (var o in daten)
@@ -50,6 +56,62 @@ public partial class OrteViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddAsync()
+    {
+        var result = _dialogService.ShowEditOrt(null);
+        await ReloadAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    private async Task EditAsync()
+    {
+        if (SelectedItem is null) return;
+        var result = _dialogService.ShowEditOrt(SelectedItem);
+        await ReloadAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    private async Task DeleteAsync()
+    {
+        if (SelectedItem is null) return;
+
+        // Eager load related entities to display list of references
+        var trackingEntity = await _db.Orte
+            .Include(o => o.Verlage)
+            .Include(o => o.Autoren)
+            .FirstOrDefaultAsync(o => o.Id == SelectedItem.Id);
+
+        if (trackingEntity is null) return;
+
+        var affected = new List<string>();
+        foreach (var v in trackingEntity.Verlage)
+            affected.Add($"Verlag: {v.Name}");
+        foreach (var a in trackingEntity.Autoren)
+            affected.Add($"Autor: {a.VollstaendigerName}");
+
+        var request = new ConfirmDeleteRequest(
+            EntityName: "Ort",
+            EntityLabel: SelectedItem.ToString(),
+            AffectedEntries: affected,
+            CanCascade: true); // SetNull behavior is allowed to cascade to Null
+
+        var result = _dialogService.ShowConfirmDelete(request);
+        if (result.Confirmed)
+        {
+            try
+            {
+                _db.Orte.Remove(trackingEntity);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Fehler beim Löschen des Ortes: {ex.Message}";
+            }
+            await ReloadAsync();
         }
     }
 }

@@ -21,12 +21,18 @@ public enum EditDialogResult
     Deleted = 2,
 }
 
+public interface IBaseEditDialogViewModel
+{
+    event EventHandler<EditDialogResultEventArgs>? RequestClose;
+    void ValidateAll();
+}
+
 /// <summary>
 /// Basisklasse für alle EditDialog-ViewModels. Erbt von <see cref="ObservableValidator"/>,
 /// hält die zu bearbeitende Entität und koordiniert Save / Cancel / DB-Constraint-Fehler.
 /// </summary>
 /// <typeparam name="T">Domain-Entität (z. B. <c>Buch</c>, <c>Autor</c>, <c>Verlag</c>, <c>Ort</c>).</typeparam>
-public abstract partial class BaseEditDialogViewModel<T> : ObservableValidator
+public abstract partial class BaseEditDialogViewModel<T> : ObservableValidator, IBaseEditDialogViewModel
     where T : class, new()
 {
     private readonly LibraryDbContext _db;
@@ -56,9 +62,6 @@ public abstract partial class BaseEditDialogViewModel<T> : ObservableValidator
         _db = db;
         if (existing is not null)
             Entity = existing;
-
-        // Validierung initial anstoßen, damit HasErrors direkt korrekt ist.
-        ValidateAll();
     }
 
     /// <summary>
@@ -74,7 +77,13 @@ public abstract partial class BaseEditDialogViewModel<T> : ObservableValidator
         // Neu hinzufügen oder bestehendes updaten — Change-Tracker entscheidet das
         // anhand der vom EF-Context beim Tracking erkannten Entität.
         if (_db.Entry(Entity).State == EntityState.Detached)
-            _db.Add(Entity);
+        {
+            var idVal = _db.Entry(Entity).Property("Id").CurrentValue;
+            if (idVal is int id && id == 0)
+                _db.Add(Entity);
+            else
+                _db.Update(Entity);
+        }
 
         try
         {
@@ -97,13 +106,7 @@ public abstract partial class BaseEditDialogViewModel<T> : ObservableValidator
 
     private bool CanSave() => !HasErrors;
 
-    partial void OnEntityChanged(T value)
-    {
-        // Wenn die Entität ausgetauscht wird (Add vs. Edit), Validierung neu anstoßen
-        // und SaveCommand-Zustand invalidieren.
-        ValidateAll();
-        SaveCommand.NotifyCanExecuteChanged();
-    }
+
 
     [RelayCommand]
     private void Cancel()

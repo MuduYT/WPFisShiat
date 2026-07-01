@@ -1,0 +1,70 @@
+<Window x:Class="BibWpf.Dialogs.ConfirmDeleteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Löschen bestätigen"
+        Background="#1E1E1E" Foreground="White"
+        Width="500" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="false">
+    
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Question -->
+            <RowDefinition Height="Auto"/> <!-- Affected List Header -->
+            <RowDefinition Height="Auto"/> <!-- ScrollViewer of Affected Entries -->
+            <RowDefinition Height="Auto"/> <!-- Warnings / Checkbox -->
+            <RowDefinition Height="Auto"/> <!-- Buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- Question -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="Eintrag löschen?" FontSize="18" FontWeight="Bold" Foreground="#E0A96D" Margin="0,0,0,8"/>
+            <TextBlock TextWrapping="Wrap" FontSize="14">
+                <Run Text="Möchten Sie folgenden Eintrag wirklich löschen?"/>
+            </TextBlock>
+            <Border Background="#2D2D30" CornerRadius="4" Padding="10" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Request.EntityName}" FontWeight="Bold" Foreground="#9CDCFE" Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding Request.EntityLabel}" Foreground="White"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Affected List Header -->
+        <TextBlock x:Name="AffectedHeader" Grid.Row="1" Text="Verknüpfte Einträge (Achtung!):" FontWeight="Bold" Foreground="#F44336" Margin="0,4"/>
+
+        <!-- ScrollViewer of Affected Entries -->
+        <ScrollViewer x:Name="AffectedScroll" Grid.Row="2" MaxHeight="150" VerticalScrollBarVisibility="Auto" Margin="0,4,0,12">
+            <ItemsControl ItemsSource="{Binding Request.AffectedEntries}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Foreground="#CCCCCC" Margin="12,2,0,2"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Warnings / Checkbox -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,16">
+            <!-- Restrict Warning -->
+            <Border x:Name="RestrictWarning" Background="#5A1D1D" CornerRadius="4" Padding="10" Margin="0,4">
+                <TextBlock Text="Löschen nicht möglich: Dieser Eintrag wird von anderen Einträgen referenziert, die nicht gelöscht werden dürfen (Restrict). Bitte löschen oder ändern Sie zuerst die oben genannten abhängigen Einträge."
+                           Foreground="White" TextWrapping="Wrap" FontSize="12"/>
+            </Border>
+
+            <!-- Cascade Checkbox -->
+            <CheckBox x:Name="CascadeCheckBox" Content="Ich verstehe, dass die Verknüpfungen der abhängigen Einträge auf NULL gesetzt werden."
+                      Foreground="White" FontSize="12" Margin="0,4" Checked="OnCascadeCheckBoxChecked" Unchecked="OnCascadeCheckBoxChecked"/>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Abbrechen" Click="OnCancelClick" IsCancel="True"
+                    MinWidth="95" Margin="0,0,8,0" Padding="8,4"
+                    Background="#2D2D30" Foreground="White" BorderThickness="0"/>
+            <Button x:Name="DeleteButton" Content="Löschen" Click="OnDeleteClick"
+                    MinWidth="95" Padding="8,4"
+                    Background="#D32F2F" Foreground="White" BorderThickness="0"/>
+        </StackPanel>
+    </Grid>
+</Window>
