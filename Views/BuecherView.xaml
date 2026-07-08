@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:conv="clr-namespace:BibWpf.Converters"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="860">
 
@@ -51,13 +52,14 @@
         <!-- ── Tabelle ── -->
         <DataGrid Grid.Row="2"
                   Style="{StaticResource AppDataGrid}"
+                  conv:DataGridIndexHelper.AutoIndex="True"
                   ItemsSource="{Binding Buecher}"
                   SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="#"       Binding="{Binding Id}"               Width="0.5*" MinWidth="45"/>
+                <DataGridTextColumn Header="#"       Binding="{Binding (conv:DataGridIndexHelper.Index), RelativeSource={RelativeSource AncestorType=DataGridRow}}"               Width="0.5*" MinWidth="45"/>
                 <DataGridTextColumn Header="Titel"   Binding="{Binding Titel}"            Width="3.5*" MinWidth="160"/>
-                <DataGridTextColumn Header="Autor"   Binding="{Binding Autor.VollstaendigerName}" Width="2*" MinWidth="120"/>
-                <DataGridTextColumn Header="Verlag"  Binding="{Binding Verlag.Name}"      Width="2*" MinWidth="120"/>
+                <DataGridTextColumn Header="Autor"   Binding="{Binding Autor.VollstaendigerName, TargetNullValue='-'}" Width="2*" MinWidth="120"/>
+                <DataGridTextColumn Header="Verlag"  Binding="{Binding Verlag.Name, TargetNullValue='-'}"      Width="2*" MinWidth="120"/>
                 <DataGridTextColumn Header="Jahr"    Binding="{Binding Erscheinungsjahr}" Width="1*" MinWidth="60"/>
                 <DataGridTextColumn Header="ISBN"    Binding="{Binding Isbn}"             Width="2*" MinWidth="110"/>
                 <DataGridTextColumn Header="Seiten"  Binding="{Binding Seiten}"           Width="1*" MinWidth="60"/>

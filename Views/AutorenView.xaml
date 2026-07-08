@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:conv="clr-namespace:BibWpf.Converters"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="860">
 
@@ -49,15 +50,16 @@
         <!-- ── Tabelle ── -->
         <DataGrid Grid.Row="2"
                   Style="{StaticResource AppDataGrid}"
+                  conv:DataGridIndexHelper.AutoIndex="True"
                   ItemsSource="{Binding Autoren}"
                   SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="#"          Binding="{Binding Id}"                    Width="0.5*" MinWidth="45"/>
+                <DataGridTextColumn Header="#"          Binding="{Binding (conv:DataGridIndexHelper.Index), RelativeSource={RelativeSource AncestorType=DataGridRow}}"                    Width="0.5*" MinWidth="45"/>
                 <DataGridTextColumn Header="Vorname"    Binding="{Binding Vorname}"               Width="2*" MinWidth="100"/>
                 <DataGridTextColumn Header="Nachname"   Binding="{Binding Nachname}"              Width="2*" MinWidth="100"/>
                 <DataGridTextColumn Header="Vollst. Name" Binding="{Binding VollstaendigerName}"  Width="3*" MinWidth="150"/>
                 <DataGridTextColumn Header="Geb. Jahr"  Binding="{Binding Geburtsjahr}"           Width="1.5*" MinWidth="70"/>
-                <DataGridTextColumn Header="Wohnort"    Binding="{Binding Ort.Name}"              Width="2.5*" MinWidth="120"/>
+                <DataGridTextColumn Header="Wohnort"    Binding="{Binding Ort.Name, TargetNullValue='-'}"              Width="2.5*" MinWidth="120"/>
                 <DataGridTextColumn Header="# Bücher"   Binding="{Binding Buecher.Count}"         Width="1.5*" MinWidth="80"/>
             </DataGrid.Columns>
         </DataGrid>

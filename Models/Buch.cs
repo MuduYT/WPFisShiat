@@ -30,13 +30,11 @@ public class Buch
     // ---- Fremdschlüssel (Beziehungen) ----
     /// <summary>Verfasser:in — Pflichtbeziehung.</summary>
     [Required(ErrorMessage = "Autor ist erforderlich.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Autor ist erforderlich.")]
     public int AutorId { get; set; }
     public Autor? Autor { get; set; }
 
     /// <summary>Verlag — Pflichtbeziehung.</summary>
     [Required(ErrorMessage = "Verlag ist erforderlich.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Verlag ist erforderlich.")]
     public int VerlagId { get; set; }
     public Verlag? Verlag { get; set; }
 
