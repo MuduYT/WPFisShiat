@@ -10,11 +10,13 @@ namespace BibWpf.ViewModels;
 
 /// <summary>
 /// ViewModel für die Bücherliste (mit CRUD-Funktionalität).
+/// Neu-/Bearbeiten öffnet das rechte Slide-In-Panel statt eines modalen Dialogs.
 /// </summary>
 public partial class BuecherViewModel : BaseViewModel
 {
     private readonly LibraryDbContext _db;
     private readonly IDialogService _dialogService;
+    private readonly IEditPanelService _editPanelService;
 
     /// <summary>ObservableCollection: DataGrid in der View bindet hieran.</summary>
     public ObservableCollection<Buch> Buecher { get; } = new();
@@ -26,10 +28,11 @@ public partial class BuecherViewModel : BaseViewModel
 
     public bool CanEditOrDelete => SelectedItem != null;
 
-    public BuecherViewModel(LibraryDbContext db, IDialogService dialogService)
+    public BuecherViewModel(LibraryDbContext db, IDialogService dialogService, IEditPanelService editPanelService)
     {
         _db = db;
         _dialogService = dialogService;
+        _editPanelService = editPanelService;
         Title = "Bücher";
     }
 
@@ -61,18 +64,16 @@ public partial class BuecherViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task AddAsync()
+    private void Add()
     {
-        var result = _dialogService.ShowEditBuch(null);
-        await ReloadAsync();
+        _editPanelService.ShowEditBuch(null);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
-    private async Task EditAsync()
+    private void Edit()
     {
         if (SelectedItem is null) return;
-        var result = _dialogService.ShowEditBuch(SelectedItem);
-        await ReloadAsync();
+        _editPanelService.ShowEditBuch(SelectedItem);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
@@ -91,7 +92,6 @@ public partial class BuecherViewModel : BaseViewModel
         {
             try
             {
-                // Da SelectedItem aus dem parent context geladen wurde (AsNoTracking), müssen wir es im aktuellen context finden/entfernen.
                 var trackingEntity = await _db.Buecher.FindAsync(SelectedItem.Id);
                 if (trackingEntity is not null)
                 {

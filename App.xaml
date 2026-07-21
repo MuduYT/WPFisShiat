@@ -49,6 +49,7 @@
             <SolidColorBrush x:Key="Brush.Bg.Selected"  Color="{StaticResource Col.Bg.Selected}"/>
             <SolidColorBrush x:Key="Brush.Bg.Hover"     Color="{StaticResource Col.Bg.Hover}"/>
             <SolidColorBrush x:Key="Brush.Accent.Blue"  Color="{StaticResource Col.Accent.Blue}"/>
+            <SolidColorBrush x:Key="Brush.Accent.BlueLight" Color="{StaticResource Col.Accent.BlueLight}"/>
             <SolidColorBrush x:Key="Brush.Border"       Color="{StaticResource Col.Border.Default}"/>
             <SolidColorBrush x:Key="Brush.Border.Subtle" Color="{StaticResource Col.Border.Subtle}"/>
             <SolidColorBrush x:Key="Brush.Text.Primary" Color="{StaticResource Col.Text.Primary}"/>
@@ -365,7 +366,6 @@
                 <Setter Property="FontSize" Value="13"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Style.Resources>
-                    <!-- Ändert den standardmäßigen CornerRadius des inneren Rahmens -->
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="4"/>
                     </Style>
@@ -377,7 +377,29 @@
                 </Style.Triggers>
             </Style>
 
-            <!-- Globaler Standard-Stil für ComboBox in Dialogen -->
+            <!-- ═══════════════════════════════════════════════════════
+                 COMBOBOX — Darkmode mit eigenem Template
+                 ═══════════════════════════════════════════════════════ -->
+
+            <!-- ToggleButton (Pfeil) für ComboBox -->
+            <Style x:Key="DarkComboBoxToggleButton" TargetType="ToggleButton">
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Grid Background="Transparent">
+                                <Path HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      Margin="0,0,10,0" Fill="{StaticResource Brush.Text.Secondary}"
+                                      Data="M 0 0 L 8 0 L 4 4 Z"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- ComboBox (Darkmode mit Popup-Template) -->
             <Style TargetType="ComboBox">
                 <Setter Property="Background" Value="{StaticResource Brush.Bg.Card}"/>
                 <Setter Property="Foreground" Value="{StaticResource Brush.Text.Primary}"/>
@@ -386,29 +408,97 @@
                 <Setter Property="Padding" Value="8,6"/>
                 <Setter Property="FontSize" Value="13"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
-                <Style.Triggers>
-                    <Trigger Property="IsFocused" Value="True">
-                        <Setter Property="BorderBrush" Value="{StaticResource Brush.Accent.Blue}"/>
-                    </Trigger>
-                </Style.Triggers>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid>
+                                <Border x:Name="ComboBoxBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="4">
+                                    <Grid>
+                                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                          HorizontalAlignment="Left"
+                                                          Content="{TemplateBinding SelectionBoxItem}"
+                                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                                        <ToggleButton IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      ClickMode="Press"
+                                                      Style="{StaticResource DarkComboBoxToggleButton}"/>
+                                    </Grid>
+                                </Border>
+                                <Popup x:Name="PART_Popup"
+                                       AllowsTransparency="True"
+                                       IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Placement="Bottom"
+                                       PopupAnimation="Slide"
+                                       Focusable="False"
+                                       StaysOpen="False">
+                                    <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                            MaxHeight="300"
+                                            Margin="0,4,0,0"
+                                            Background="{StaticResource Brush.Bg.Card}"
+                                            BorderBrush="{StaticResource Brush.Border}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="2">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsFocused" Value="True">
+                                    <Setter TargetName="ComboBoxBorder" Property="BorderBrush" Value="{StaticResource Brush.Accent.Blue}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ComboBoxBorder" Property="BorderBrush" Value="{StaticResource Brush.Accent.BlueLight}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
-            <!-- Globaler Standard-Stil für ComboBoxItem (Dark Theme Lesbarkeit) -->
+            <!-- ComboBoxItem (Dark Theme Lesbarkeit) mit eigenem Template -->
             <Style TargetType="ComboBoxItem">
                 <Setter Property="Background" Value="{StaticResource Brush.Bg.Card}"/>
                 <Setter Property="Foreground" Value="{StaticResource Brush.Text.Primary}"/>
                 <Setter Property="Padding" Value="8,6"/>
                 <Setter Property="FontSize" Value="13"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource Brush.Bg.Hover}"/>
-                        <Setter Property="Foreground" Value="{StaticResource Brush.Text.Primary}"/>
-                    </Trigger>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{StaticResource Brush.Bg.Selected}"/>
-                        <Setter Property="Foreground" Value="{StaticResource Brush.Text.Primary}"/>
-                    </Trigger>
-                </Style.Triggers>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBoxItem">
+                            <Border x:Name="ItemBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderThickness="0"
+                                    Padding="{TemplateBinding Padding}"
+                                    CornerRadius="3">
+                                <ContentPresenter VerticalAlignment="Center"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.Bg.Hover}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.Bg.Selected}"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.Bg.Selected}"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <!-- ═══════════════════════════════════════════════════════

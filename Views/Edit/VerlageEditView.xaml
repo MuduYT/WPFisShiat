@@ -1,0 +1,75 @@
+<UserControl x:Class="BibWpf.Views.Edit.VerlageEditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:BibWpf.ViewModels.Dialogs"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:VerlageEditDialogViewModel}"
+             Background="{StaticResource Brush.Bg.Sidebar}" Foreground="{StaticResource Brush.Text.Primary}">
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="{Binding Title}"
+                   Foreground="{StaticResource Brush.Text.Primary}"
+                   FontSize="16" FontWeight="Bold" Margin="0,0,0,16"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel DataContext="{Binding Entity}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/><RowDefinition/><RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Name*"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="Gegründet"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Gruendungsjahr, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Sitz (Ort)"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,4"
+                              ItemsSource="{Binding DataContext.OrteListe, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Name"
+                              SelectedValue="{Binding OrtId, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+                </Grid>
+
+                <TextBlock Text="Veröffentlichte Bücher" FontSize="13" FontWeight="SemiBold" Margin="0,16,0,4"/>
+                <ListBox Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource Brush.Border}"
+                         ItemsSource="{Binding Buecher}" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Titel}" Foreground="{StaticResource Brush.Text.Primary}" FontSize="13" Padding="0,4"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="#5A1D1D" CornerRadius="4" Padding="10,6"
+                Margin="0,12,0,8"
+                Visibility="{Binding HasDbErrors, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="{Binding DbErrorMessage}" Foreground="White" TextWrapping="Wrap"/>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button Content="Abbrechen" Command="{Binding CancelCommand}"
+                    MinWidth="90" Margin="0,0,8,0" Style="{StaticResource Btn.Secondary}"/>
+            <Button Content="Speichern" Command="{Binding SaveCommand}" IsDefault="True"
+                    MinWidth="90" Style="{StaticResource Btn.Primary}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

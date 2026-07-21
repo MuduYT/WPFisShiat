@@ -53,6 +53,7 @@ public partial class App : Application
 
                 // ---- Services ----
                 services.AddSingleton<BibWpf.ViewModels.Dialogs.IDialogService, BibWpf.Services.WpfDialogService>();
+                services.AddScoped<IEditPanelService, EditPanelService>();
 
                 // ---- ViewModels ----
                 // Sub-ViewModels: scoped, damit sie den (scoped) DbContext teilen.
@@ -62,7 +63,7 @@ public partial class App : Application
                 services.AddScoped<OrteViewModel>();
                 services.AddScoped<SettingsViewModel>();
 
-                // Edit-Dialog ViewModels (erzeugt via ActivatorUtilities im Service, optional auch hier registriert)
+                // Edit-Dialog ViewModels (erzeugt via ActivatorUtilities im Service).
                 services.AddTransient<BibWpf.ViewModels.Dialogs.BuecherEditDialogViewModel>();
                 services.AddTransient<BibWpf.ViewModels.Dialogs.AutorenEditDialogViewModel>();
                 services.AddTransient<BibWpf.ViewModels.Dialogs.VerlageEditDialogViewModel>();
@@ -89,16 +90,8 @@ public partial class App : Application
             db.Database.Migrate();
             if (db.IsDatabaseEmpty())
             {
-                var promptResult = MessageBox.Show(
-                    "Die Datenbank ist leer. Sollen die Testdaten automatisch erstellt werden?",
-                    "Datenbank leer",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (promptResult == MessageBoxResult.Yes)
-                {
-                    db.EnsureSeeded();
-                }
+                // Automatisch mit Testdaten befüllen, damit die App ohne Dialog startet.
+                db.EnsureSeeded();
             }
         }
         catch (Exception ex)

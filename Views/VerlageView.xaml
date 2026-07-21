@@ -50,11 +50,10 @@
         <!-- ── Tabelle ── -->
         <DataGrid Grid.Row="2"
                   Style="{StaticResource AppDataGrid}"
-                  conv:DataGridIndexHelper.AutoIndex="True"
                   ItemsSource="{Binding Verlage}"
                   SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="#"           Binding="{Binding (conv:DataGridIndexHelper.Index), RelativeSource={RelativeSource AncestorType=DataGridRow}}"             Width="0.5*" MinWidth="45"/>
+                <DataGridTextColumn Header="#"           Binding="{Binding Id}"           Width="0.5*" MinWidth="45"/>
                 <DataGridTextColumn Header="Name"        Binding="{Binding Name}"           Width="4*" MinWidth="180"/>
                 <DataGridTextColumn Header="Gegründet"   Binding="{Binding Gruendungsjahr}" Width="1.5*" MinWidth="80"/>
                 <DataGridTextColumn Header="Sitz"        Binding="{Binding Ort.Name, TargetNullValue='-'}"       Width="2.5*" MinWidth="120"/>

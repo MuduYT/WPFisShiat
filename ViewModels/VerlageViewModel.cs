@@ -10,11 +10,13 @@ namespace BibWpf.ViewModels;
 
 /// <summary>
 /// ViewModel für die Verlagsliste (mit CRUD-Funktionalität).
+/// Neu-/Bearbeiten öffnet das rechte Slide-In-Panel.
 /// </summary>
 public partial class VerlageViewModel : BaseViewModel
 {
     private readonly LibraryDbContext _db;
     private readonly IDialogService _dialogService;
+    private readonly IEditPanelService _editPanelService;
 
     public ObservableCollection<Verlag> Verlage { get; } = new();
 
@@ -25,10 +27,11 @@ public partial class VerlageViewModel : BaseViewModel
 
     public bool CanEditOrDelete => SelectedItem is not null;
 
-    public VerlageViewModel(LibraryDbContext db, IDialogService dialogService)
+    public VerlageViewModel(LibraryDbContext db, IDialogService dialogService, IEditPanelService editPanelService)
     {
         _db = db;
         _dialogService = dialogService;
+        _editPanelService = editPanelService;
         Title = "Verlage";
     }
 
@@ -60,18 +63,16 @@ public partial class VerlageViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task AddAsync()
+    private void Add()
     {
-        var result = _dialogService.ShowEditVerlag(null);
-        await ReloadAsync();
+        _editPanelService.ShowEditVerlag(null);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
-    private async Task EditAsync()
+    private void Edit()
     {
         if (SelectedItem is null) return;
-        var result = _dialogService.ShowEditVerlag(SelectedItem);
-        await ReloadAsync();
+        _editPanelService.ShowEditVerlag(SelectedItem);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
@@ -79,7 +80,6 @@ public partial class VerlageViewModel : BaseViewModel
     {
         if (SelectedItem is null) return;
 
-        // Eager load Buecher to see if this verlag has books referencing them
         var trackingEntity = await _db.Verlage
             .Include(v => v.Buecher)
             .FirstOrDefaultAsync(v => v.Id == SelectedItem.Id);
@@ -94,7 +94,7 @@ public partial class VerlageViewModel : BaseViewModel
             EntityName: "Verlag",
             EntityLabel: SelectedItem.Name,
             AffectedEntries: affected,
-            CanCascade: false); // Restrict constraint
+            CanCascade: false);
 
         var result = _dialogService.ShowConfirmDelete(request);
         if (result.Confirmed)

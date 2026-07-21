@@ -10,11 +10,13 @@ namespace BibWpf.ViewModels;
 
 /// <summary>
 /// ViewModel für die Autorenliste (mit CRUD-Funktionalität).
+/// Neu-/Bearbeiten öffnet das rechte Slide-In-Panel.
 /// </summary>
 public partial class AutorenViewModel : BaseViewModel
 {
     private readonly LibraryDbContext _db;
     private readonly IDialogService _dialogService;
+    private readonly IEditPanelService _editPanelService;
 
     public ObservableCollection<Autor> Autoren { get; } = new();
 
@@ -25,10 +27,11 @@ public partial class AutorenViewModel : BaseViewModel
 
     public bool CanEditOrDelete => SelectedItem is not null;
 
-    public AutorenViewModel(LibraryDbContext db, IDialogService dialogService)
+    public AutorenViewModel(LibraryDbContext db, IDialogService dialogService, IEditPanelService editPanelService)
     {
         _db = db;
         _dialogService = dialogService;
+        _editPanelService = editPanelService;
         Title = "Autor:innen";
     }
 
@@ -60,18 +63,16 @@ public partial class AutorenViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task AddAsync()
+    private void Add()
     {
-        var result = _dialogService.ShowEditAutor(null);
-        await ReloadAsync();
+        _editPanelService.ShowEditAutor(null);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
-    private async Task EditAsync()
+    private void Edit()
     {
         if (SelectedItem is null) return;
-        var result = _dialogService.ShowEditAutor(SelectedItem);
-        await ReloadAsync();
+        _editPanelService.ShowEditAutor(SelectedItem);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
@@ -79,7 +80,6 @@ public partial class AutorenViewModel : BaseViewModel
     {
         if (SelectedItem is null) return;
 
-        // Eager load Buecher to see if this author has books referencing them
         var trackingEntity = await _db.Autoren
             .Include(a => a.Buecher)
             .FirstOrDefaultAsync(a => a.Id == SelectedItem.Id);
@@ -94,7 +94,7 @@ public partial class AutorenViewModel : BaseViewModel
             EntityName: "Autor:in",
             EntityLabel: SelectedItem.VollstaendigerName,
             AffectedEntries: affected,
-            CanCascade: false); // Restrict constraint
+            CanCascade: false);
 
         var result = _dialogService.ShowConfirmDelete(request);
         if (result.Confirmed)

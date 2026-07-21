@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:BibWpf.ViewModels.Dialogs"
+        xmlns:editview="clr-namespace:BibWpf.Views.Edit"
         mc:Ignorable="d"
         Title="BibManager — Bibliotheksverwaltung"
         Height="700" Width="1100"
@@ -10,20 +12,34 @@
         Background="{StaticResource Brush.Bg.App}"
         WindowStartupLocation="CenterScreen">
 
-    <Grid>
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type dialogs:BuecherEditDialogViewModel}">
+            <editview:BuecherEditView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type dialogs:AutorenEditDialogViewModel}">
+            <editview:AutorenEditView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type dialogs:VerlageEditDialogViewModel}">
+            <editview:VerlageEditView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type dialogs:OrteEditDialogViewModel}">
+            <editview:OrteEditView/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid x:Name="RootGrid" SizeChanged="OnRootGridSizeChanged">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+        <!-- SIDEBAR -->
         <Border Grid.Column="0"
                 Background="{StaticResource Brush.Bg.Sidebar}"
                 BorderBrush="{StaticResource Brush.Border}"
                 BorderThickness="0,0,1,0">
             <DockPanel Margin="12,20,12,20">
-
-                <!-- Logo -->
                 <StackPanel DockPanel.Dock="Top" Margin="4,0,4,32">
                     <TextBlock Text="BibManager"
                                Foreground="{StaticResource Brush.Text.Primary}"
@@ -32,58 +48,58 @@
                                Foreground="{StaticResource Brush.Text.Muted}"
                                FontSize="10" Margin="0,2,0,0"/>
                 </StackPanel>
-
-                <!-- Trennlinie -->
-                <Border DockPanel.Dock="Top"
-                        Height="1" Margin="0,0,0,16"
+                <Border DockPanel.Dock="Top" Height="1" Margin="0,0,0,16"
                         Background="{StaticResource Brush.Border.Subtle}"/>
-
-                <!-- Nav-Label -->
-                <TextBlock DockPanel.Dock="Top"
-                           Text="BEREICHE"
+                <TextBlock DockPanel.Dock="Top" Text="BEREICHE"
                            Foreground="{StaticResource Brush.Text.Muted}"
-                           FontSize="10" FontWeight="SemiBold"
-                           Margin="16,0,0,8"/>
-
-                <!-- Nav-Buttons -->
-                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,0">
-                    <Button Content="📚  Bücher"
-                            Command="{Binding ShowBuecherCommand}"
-                            Style="{StaticResource Btn.Nav}"
-                            Margin="0,2"/>
-                    <Button Content="✍  Autor:innen"
-                            Command="{Binding ShowAutorenCommand}"
-                            Style="{StaticResource Btn.Nav}"
-                            Margin="0,2"/>
-                    <Button Content="🏢  Verlage"
-                            Command="{Binding ShowVerlageCommand}"
-                            Style="{StaticResource Btn.Nav}"
-                            Margin="0,2"/>
-                    <Button Content="📍  Orte"
-                            Command="{Binding ShowOrteCommand}"
-                            Style="{StaticResource Btn.Nav}"
-                            Margin="0,2"/>
-                    <Button Content="⚙  Einstellungen"
-                            Command="{Binding ShowSettingsCommand}"
-                            Style="{StaticResource Btn.Nav}"
-                            Margin="0,2"/>
+                           FontSize="10" FontWeight="SemiBold" Margin="16,0,0,8"/>
+                <StackPanel DockPanel.Dock="Top">
+                    <Button Content="Bücher" Command="{Binding ShowBuecherCommand}"
+                            Style="{StaticResource Btn.Nav}" Margin="0,2"/>
+                    <Button Content="Autor:innen" Command="{Binding ShowAutorenCommand}"
+                            Style="{StaticResource Btn.Nav}" Margin="0,2"/>
+                    <Button Content="Verlage" Command="{Binding ShowVerlageCommand}"
+                            Style="{StaticResource Btn.Nav}" Margin="0,2"/>
+                    <Button Content="Orte" Command="{Binding ShowOrteCommand}"
+                            Style="{StaticResource Btn.Nav}" Margin="0,2"/>
+                    <Button Content="Einstellungen" Command="{Binding ShowSettingsCommand}"
+                            Style="{StaticResource Btn.Nav}" Margin="0,2"/>
                 </StackPanel>
-
-                <!-- Status-Indikator unten -->
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="16,0">
                     <Ellipse Width="7" Height="7" Fill="#22C55E"
                              VerticalAlignment="Center" Margin="0,0,7,0"/>
-                    <TextBlock Text="Verbunden"
-                               Foreground="{StaticResource Brush.Text.Muted}"
+                    <TextBlock Text="Verbunden" Foreground="{StaticResource Brush.Text.Muted}"
                                FontSize="11" VerticalAlignment="Center"/>
                 </StackPanel>
-
             </DockPanel>
         </Border>
 
-        <!-- ═══════════════════ HAUPTINHALT ═══════════════════ -->
-        <ContentControl Grid.Column="1"
-                        Content="{Binding CurrentView}"
+        <!-- HAUPTINHALT -->
+        <ContentControl Grid.Column="1" Content="{Binding CurrentView}"
                         Margin="28,28,28,20"/>
+
+        <!-- MODAL-OVERLAY: blockiert Klicks auf den Rest, wenn das Panel offen ist -->
+        <Grid x:Name="Overlay" Grid.Column="0" Grid.ColumnSpan="3"
+              Background="#AA000000" Visibility="Collapsed" Panel.ZIndex="5"
+              MouseDown="OnOverlayMouseDown"/>
+
+        <!-- RECHTES SLIDE-IN EDIT-PANEL; Animation wird in MainWindow.xaml.cs gesteuert. -->
+        <Border x:Name="EditPanel" Grid.Column="0" Grid.ColumnSpan="3" Width="0"
+                HorizontalAlignment="Right"
+                Background="{StaticResource Brush.Bg.Sidebar}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1,0,0,0"
+                Visibility="Collapsed" Panel.ZIndex="10">
+            <Border.RenderTransform>
+                <TranslateTransform X="420"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Direction="270" ShadowDepth="8"
+                                  BlurRadius="22" Opacity="0.55"/>
+            </Border.Effect>
+            <ContentControl Content="{Binding CurrentEditViewModel}"
+                            VerticalContentAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"/>
+        </Border>
     </Grid>
 </Window>

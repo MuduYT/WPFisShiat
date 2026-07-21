@@ -10,11 +10,13 @@ namespace BibWpf.ViewModels;
 
 /// <summary>
 /// ViewModel für die Ortsliste (mit CRUD-Funktionalität).
+/// Neu-/Bearbeiten öffnet das rechte Slide-In-Panel.
 /// </summary>
 public partial class OrteViewModel : BaseViewModel
 {
     private readonly LibraryDbContext _db;
     private readonly IDialogService _dialogService;
+    private readonly IEditPanelService _editPanelService;
 
     public ObservableCollection<Ort> Orte { get; } = new();
 
@@ -25,10 +27,11 @@ public partial class OrteViewModel : BaseViewModel
 
     public bool CanEditOrDelete => SelectedItem is not null;
 
-    public OrteViewModel(LibraryDbContext db, IDialogService dialogService)
+    public OrteViewModel(LibraryDbContext db, IDialogService dialogService, IEditPanelService editPanelService)
     {
         _db = db;
         _dialogService = dialogService;
+        _editPanelService = editPanelService;
         Title = "Orte";
     }
 
@@ -60,18 +63,16 @@ public partial class OrteViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task AddAsync()
+    private void Add()
     {
-        var result = _dialogService.ShowEditOrt(null);
-        await ReloadAsync();
+        _editPanelService.ShowEditOrt(null);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
-    private async Task EditAsync()
+    private void Edit()
     {
         if (SelectedItem is null) return;
-        var result = _dialogService.ShowEditOrt(SelectedItem);
-        await ReloadAsync();
+        _editPanelService.ShowEditOrt(SelectedItem);
     }
 
     [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
@@ -79,7 +80,6 @@ public partial class OrteViewModel : BaseViewModel
     {
         if (SelectedItem is null) return;
 
-        // Eager load related entities to display list of references
         var trackingEntity = await _db.Orte
             .Include(o => o.Verlage)
             .Include(o => o.Autoren)
@@ -97,7 +97,7 @@ public partial class OrteViewModel : BaseViewModel
             EntityName: "Ort",
             EntityLabel: SelectedItem.ToString(),
             AffectedEntries: affected,
-            CanCascade: true); // SetNull behavior is allowed to cascade to Null
+            CanCascade: true);
 
         var result = _dialogService.ShowConfirmDelete(request);
         if (result.Confirmed)
